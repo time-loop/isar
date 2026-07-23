@@ -262,14 +262,8 @@ void main() {
 
         await isar.tWriteTxn(() => col.tDelete(1));
         await listenerLazy.next;
-        if (kIsWeb) {
-          expect(await listener.next, [obj2]);
-        }
 
         await isar.tWriteTxn(() => col.tDelete(2));
-        if (kIsWeb) {
-          await listenerLazy.next;
-        }
         expect(await listener.next, <dynamic>[]);
 
         await listenerLazy.done();
@@ -289,10 +283,6 @@ void main() {
         expect(await listener.next, <dynamic>[]);
 
         await isar.tWriteTxn(() => col.tDeleteAll([3]));
-        if (kIsWeb) {
-          await listenerLazy.next;
-          expect(await listener.next, <dynamic>[]);
-        }
 
         await listenerLazy.done();
         await listener.done();
@@ -308,14 +298,8 @@ void main() {
 
         await isar.writeTxn(() => col.deleteByValue(obj1.value));
         await listenerLazy.next;
-        if (kIsWeb) {
-          expect(await listener.next, [obj2]);
-        }
 
         await isar.writeTxn(() => col.deleteByValue(obj2.value));
-        if (kIsWeb) {
-          await listenerLazy.next;
-        }
         expect(await listener.next, <dynamic>[]);
 
         await listenerLazy.done();
@@ -337,10 +321,6 @@ void main() {
         expect(await listener.next, <dynamic>[]);
 
         await isar.writeTxn(() => col.deleteAllByValue([obj3.value]));
-        if (kIsWeb) {
-          await listenerLazy.next;
-          expect(await listener.next, <dynamic>[]);
-        }
 
         await listenerLazy.done();
         await listener.done();
