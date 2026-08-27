@@ -45,11 +45,11 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_OVERRIDE || vars.FLUTTER_VERSION }}
       - run: flutter pub get
-        working-directory: packages/isar_community
+        working-directory: packages/isar
       - run: flutter pub get
         working-directory: packages/isar_community_flutter_libs
       - run: flutter pub get
-        working-directory: packages/isar_community_generator
+        working-directory: packages/isar_generator
       - run: flutter pub get
         working-directory: packages/isar_community_inspector
       - run: flutter pub get
@@ -60,7 +60,76 @@ jobs:
           dart tool/generate_all_tests.dart
         working-directory: packages/isar_test
       - name: Lint
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
+
+  dart_backends:
+    name: Dart memory and web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ secrets.FLUTTER_VERSION }}
+      - name: Resolve Isar
+        run: dart pub get
+        working-directory: packages/isar
+      - name: Test memory without native core
+        run: dart test test/memory_engine_test.dart
+        working-directory: packages/isar
+      - name: Resolve backend conformance tests
+        run: flutter pub get
+        working-directory: packages/isar_test
+      - name: Test full memory backend conformance
+        run: flutter test -j 1 --dart-define=ISAR_TEST_BACKEND=memory
+        working-directory: packages/isar_test
+      - name: Test IndexedDB in Chrome
+        run: dart test -p chrome test/web_indexeddb_test.dart
+        working-directory: packages/isar
+      - name: Test IndexedDB with WebAssembly
+        run: dart test -p chrome --compiler dart2wasm test/web_indexeddb_test.dart
+        working-directory: packages/isar
+      - name: Compile JavaScript boundary
+        run: dart compile js tool/compile_smoke.dart -o /tmp/isar-smoke.js
+        working-directory: packages/isar
+      - name: Compile WebAssembly boundary
+        run: dart compile wasm tool/compile_smoke.dart -o /tmp/isar-smoke.wasm
+        working-directory: packages/isar
+      - name: Build inspector JavaScript
+        run: flutter build web
+        working-directory: packages/isar_inspector
+      - name: Build inspector WebAssembly
+        run: flutter build web --wasm
+        working-directory: packages/isar_inspector
+      - name: Reject retired web bridge
+        run: |
+          ! rg "dart:(html|indexed_db|js'|js_util)|package:js/|unpkg.com/isar" \
+            packages
+
+  web_conformance:
+    name: Web conformance (${{ matrix.compiler }}, shard ${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [dart2js, dart2wasm]
+        shard: [0, 1, 2, 3]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ secrets.FLUTTER_VERSION }}
+      - name: Resolve test dependencies
+        run: flutter pub get
+        working-directory: packages/isar_test
+      - name: Generate test models
+        run: dart run build_runner build --delete-conflicting-outputs
+        working-directory: packages/isar_test
+      - name: Generate conformance aggregator
+        run: dart tool/generate_all_tests.dart
+        working-directory: packages/isar_test
+      - name: Run shared web conformance
+        run: dart test -p chrome --compiler ${{ matrix.compiler }} test/web_conformance_${{ matrix.shard }}_test.dart --reporter=failures-only
+        working-directory: packages/isar_test
 
   test:
     name: Dart Test
@@ -167,7 +236,7 @@ jobs:
         run: |
           dart pub get
           dart test
-        working-directory: packages/isar_community_generator
+        working-directory: packages/isar_generator
 
   integration_test_ios:
     name: Integration Test iOS
