@@ -289,12 +289,12 @@ class _CollectionAreaState extends State<CollectionArea> {
     final data = await widget.client.exportJson(query);
     try {
       final base64 = base64Encode(utf8.encode(jsonEncode(data)));
-      final anchor = web.document.createElement('a') as web.HTMLAnchorElement
+      final anchor = web.HTMLAnchorElement()
         ..href = 'data:application/octet-stream;base64,$base64'
         ..target = 'blank'
         ..download = '${widget.collection}.json';
 
-      web.document.body!.append(anchor);
+      web.document.body!.appendChild(anchor);
       anchor.click();
       anchor.remove();
     } catch (_) {}
