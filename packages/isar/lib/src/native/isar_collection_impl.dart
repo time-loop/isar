@@ -100,11 +100,12 @@ class IsarCollectionImpl<OBJ> extends IsarCollection<OBJ>
         final buffer = cObj.buffer.asTypedList(cObj.buffer_length);
         values.add(
           schema.deserializeProp(
-            IsarReaderImpl(buffer),
-            propertyId,
-            propertyOffset,
-            isar.offsets,
-          ) as T,
+                IsarReaderImpl(buffer),
+                propertyId,
+                propertyOffset,
+                isar.offsets,
+              )
+              as T,
         );
       }
     } else {
@@ -704,7 +705,14 @@ class IsarCollectionImpl<OBJ> extends IsarCollection<OBJ>
       }
       for (final object in unlink) {
         nCall(
-            IC.isar_link_unlink(ptr, txn.ptr, linkId, sourceId, getId(object)));
+          IC.isar_link_unlink(
+            ptr,
+            txn.ptr,
+            linkId,
+            sourceId,
+            _requireLinkId(getId, object),
+          ),
+        );
       }
     });
   }
