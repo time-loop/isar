@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:isar_community/isar.dart';
+import 'package:isar/isar.dart';
 import 'package:isar_community_inspector/object/isar_object.dart';
 import 'package:isar_community_inspector/object/object_view.dart';
 
@@ -22,7 +22,7 @@ class ObjectsListSliver extends StatelessWidget {
   final Map<String, Schema<dynamic>> schemas;
   final List<IsarObject> objects;
   final void Function(String collection, int id, String path, dynamic value)
-      onUpdate;
+  onUpdate;
   final void Function(int id) onDelete;
 
   @override

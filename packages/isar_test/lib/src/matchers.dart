@@ -1,6 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
-
-import 'package:isar_community/isar.dart';
+import 'package:isar/isar.dart';
 import 'package:isar_test/src/sync_async_helper.dart';
 import 'package:test/test.dart';
 

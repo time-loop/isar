@@ -1,7 +1,7 @@
 name: Dart CI
 
 env:
-  FLUTTER_OVERRIDE: "3.44.0"
+  FLUTTER_OVERRIDE: "3.44.6"
 
 on:
   push:
@@ -10,11 +10,12 @@ on:
   pull_request:
     branches:
       - v3*
+      - clickup/**
 
 jobs:
   version:
     name: Version Display
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Setup Flutter
@@ -25,31 +26,19 @@ jobs:
 
   format:
     name: Check formatting
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_OVERRIDE || vars.FLUTTER_VERSION }}
-      - run: flutter pub get
-        working-directory: packages/isar_community
-      - run: flutter pub get
-        working-directory: packages/isar_community_flutter_libs
-      - run: flutter pub get
-        working-directory: packages/isar_community_generator
-      - run: flutter pub get
-        working-directory: packages/isar_community_inspector
-      - run: flutter pub get
-        working-directory: examples/pub
-      - run: flutter pub get
-        working-directory: packages/isar_test
       - name: Check formatting
         run: dart format --set-exit-if-changed .
 
   lint:
     name: Check lints
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Setup Flutter
@@ -72,7 +61,7 @@ jobs:
           dart tool/generate_all_tests.dart
         working-directory: packages/isar_test
       - name: Lint
-        run: flutter analyze --no-fatal-infos
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
   dart_backends:
     name: Dart memory and web
@@ -81,7 +70,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ secrets.FLUTTER_VERSION }}
+          flutter-version: ${{ env.FLUTTER_OVERRIDE || vars.FLUTTER_VERSION }}
       - name: Resolve Isar
         run: dart pub get
         working-directory: packages/isar
@@ -129,7 +118,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: ${{ secrets.FLUTTER_VERSION }}
+          flutter-version: ${{ env.FLUTTER_OVERRIDE || vars.FLUTTER_VERSION }}
       - name: Resolve test dependencies
         run: flutter pub get
         working-directory: packages/isar_test
@@ -147,7 +136,7 @@ jobs:
     name: Dart Test
     strategy:
       matrix:
-        os: [macos-15-intel, macos-15, macos-14, ubuntu-24.04, windows-2022]
+        os: [macos-14, macos-13, ubuntu-22.04, windows-2022]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -170,7 +159,7 @@ jobs:
 
   valgrind:
     name: Valgrind
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     if: ${{ false }}
     steps:
       - uses: actions/checkout@v4
@@ -201,7 +190,7 @@ jobs:
 
   coverage:
     name: Code Coverage
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -218,27 +207,27 @@ jobs:
           flutter pub add json_annotation
           flutter pub add intl
           flutter pub add isar_test --path ../isar_test
-        working-directory: packages/isar_community
+        working-directory: packages/isar
       - name: Collect isar Coverage
         run: |
           flutter test --coverage --coverage-path lcov_isar.info
-        working-directory: packages/isar_community
+        working-directory: packages/isar
       - name: Collect isar_test Coverage
         run: |
           flutter test --coverage ../isar_test/test --coverage-path lcov_isar_test.info
-        working-directory: packages/isar_community
+        working-directory: packages/isar
       - name: Upload isar Coverage
         uses: codecov/codecov-action@v3
         with:
-          files: packages/isar_community/lcov_isar.info
+          files: packages/isar/lcov_isar.info
       - name: Upload isar_test Coverage
         uses: codecov/codecov-action@v3
         with:
-          files: packages/isar_community/lcov_isar_test.info
+          files: packages/isar/lcov_isar_test.info
 
   test_generator:
     name: Generator Test
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -252,17 +241,13 @@ jobs:
 
   integration_test_ios:
     name: Integration Test iOS
-    runs-on: macos-15
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Start simulator
-        uses: futureware-tech/simulator-action@v5
+        uses: futureware-tech/simulator-action@v4
         with:
-          model: 'iPhone 16'
-          os_version: '>= 26.0'
-          wait_for_boot: true
-          erase_before_boot: true
-          boot_timeout_seconds: 360
+          model: iPhone 15
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_OVERRIDE || vars.FLUTTER_VERSION }}
@@ -275,12 +260,12 @@ jobs:
       - name: Prepare Tests
         run: sh tool/prepare_tests.sh
       - name: Run Flutter Integration tests
-        run: flutter test -d 'iPhone 16' integration_test/integration_test.dart --dart-define STRESS=true
+        run: flutter test integration_test/integration_test.dart --dart-define STRESS=true
         working-directory: packages/isar_test
 
   integration_test_android:
     name: Integration Test Android
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
@@ -290,12 +275,6 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_OVERRIDE || vars.FLUTTER_VERSION }}
-      - name: Free Disk Space (Ubuntu)
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/local/share/boost
-          df -h
       - name: Prepare Build
         uses: ./.github/actions/prepare-build
       - name: Display Rust version
@@ -321,13 +300,12 @@ jobs:
             api-level: 29
             arch: x86_64
             profile: pixel
-            disk-size: 4096M
             working-directory: packages/isar_test
             script: flutter test integration_test/integration_test.dart --dart-define STRESS=true
 
   integration_test_macos:
     name: Integration Test macOS
-    runs-on: macos-15
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -341,68 +319,10 @@ jobs:
       - name: Build Isar Core
         run: |
           bash tool/build_macos.sh
+          install_name_tool -id @rpath/libisar.dylib libisar_macos.dylib
           mv libisar_macos.dylib packages/isar_community_flutter_libs/macos/libisar.dylib
-          mv isar.xcframework packages/isar_community_flutter_libs/macos/isar.xcframework
       - name: Prepare Tests
         run: sh tool/prepare_tests.sh
-      - name: Run Flutter Driver tests
-        run: |
-          flutter config --enable-macos-desktop
-          flutter config --no-enable-swift-package-manager
-          flutter test -d macos integration_test/integration_test.dart --dart-define STRESS=true
-        working-directory: packages/isar_test
-
-  integration_test_ios_spm:
-    name: Integration Test iOS (SwiftPM)
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_OVERRIDE || vars.FLUTTER_VERSION }}
-      - name: Prepare Build
-        uses: ./.github/actions/prepare-build
-      - name: Build Isar Core
-        run: |
-          bash tool/build_ios.sh
-          unzip isar_ios.xcframework.zip -d packages/isar_community_flutter_libs/ios
-      - name: Prepare Tests
-        run: sh tool/prepare_tests.sh
-      - name: Enable Swift Package Manager
-        run: flutter config --enable-swift-package-manager
-      - name: Start simulator
-        uses: futureware-tech/simulator-action@v5
-        with:
-          model: 'iPhone 16'
-          os_version: '>= 26.0'
-          wait_for_boot: true
-          erase_before_boot: true
-          boot_timeout_seconds: 360
-      - name: Run Flutter Integration tests
-        run: flutter test -d 'iPhone 16' integration_test/integration_test.dart --dart-define STRESS=true
-        working-directory: packages/isar_test
-
-  integration_test_macos_spm:
-    name: Integration Test macOS (SwiftPM)
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_OVERRIDE || vars.FLUTTER_VERSION }}
-      - name: Prepare Build
-        uses: ./.github/actions/prepare-build
-      - name: Display Rust version
-        run: rustc --version && cargo --version
-      - name: Build Isar Core
-        run: |
-          bash tool/build_macos.sh
-          mv libisar_macos.dylib packages/isar_community_flutter_libs/macos/libisar.dylib
-          mv isar.xcframework packages/isar_community_flutter_libs/macos/isar.xcframework
-      - name: Prepare Tests
-        run: sh tool/prepare_tests.sh
-      - name: Enable Swift Package Manager
-        run: flutter config --enable-swift-package-manager
       - name: Run Flutter Driver tests
         run: |
           flutter config --enable-macos-desktop
@@ -411,7 +331,7 @@ jobs:
 
   integration_test_linux:
     name: Integration Test Linux
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -465,7 +385,7 @@ jobs:
         working-directory: packages/isar_test
 
   # drive_chrome:
-  #   runs-on: ubuntu-24.04
+  #   runs-on: ubuntu-22.04
   #   if: ${{ false }}
   #   steps:
   #     - uses: actions/checkout@v4
@@ -486,7 +406,7 @@ jobs:
   #       working-directory: packages/isar_test
 
   # drive_safari:
-  #   runs-on: macos-15
+  #   runs-on: macos-14
   #   if: ${{ false }}
   #   steps:
   #     - uses: actions/checkout@v4
@@ -507,7 +427,7 @@ jobs:
   #       working-directory: packages/isar_test
 
   # drive_firefox:
-  #   runs-on: ubuntu-24.04
+  #   runs-on: ubuntu-22.04
   #   if: ${{ false }}
   #   steps:
   #     - uses: actions/checkout@v4

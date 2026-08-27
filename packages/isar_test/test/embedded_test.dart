@@ -1,6 +1,6 @@
 // ignore_for_file: hash_and_equals, experimental_member_use
 
-import 'package:isar_community/isar.dart';
+import 'package:isar/isar.dart';
 import 'package:isar_test/isar_test.dart';
 import 'package:test/test.dart';
 
