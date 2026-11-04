@@ -7,7 +7,7 @@ part of 'package.dart';
 // **************************************************************************
 
 // coverage:ignore-file
-// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types, experimental_member_use
 
 extension GetPackageCollection on Isar {
   IsarCollection<Package> get packages => this.collection();
@@ -146,7 +146,7 @@ final PackageSchema = CollectionSchema(
   getId: _packageGetId,
   getLinks: _packageGetLinks,
   attach: _packageAttach,
-  version: '3.2.0-dev.2',
+  version: '3.4.0',
 );
 
 int _packageEstimateSize(
@@ -3073,7 +3073,7 @@ extension PackageQueryProperty
 // **************************************************************************
 
 // coverage:ignore-file
-// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types
+// ignore_for_file: duplicate_ignore, non_constant_identifier_names, constant_identifier_names, invalid_use_of_protected_member, unnecessary_cast, prefer_const_constructors, lines_longer_than_80_chars, require_trailing_commas, inference_failure_on_function_invocation, unnecessary_parenthesis, unnecessary_raw_strings, unnecessary_null_checks, join_return_with_assignment, prefer_final_locals, avoid_js_rounded_ints, avoid_positional_boolean_parameters, always_specify_types, experimental_member_use
 
 final DependencySchema = Schema(
   name: r'Dependency',
@@ -3416,50 +3416,3 @@ extension DependencyQueryFilter
 
 extension DependencyQueryObject
     on QueryBuilder<Dependency, Dependency, QFilterCondition> {}
-
-// Extension to add copyWith method to Package
-extension PackageCopyWith on Package {
-  Package copyWith({
-    String? name,
-    String? version,
-    bool? isLatest,
-    String? homepage,
-    String? documentation,
-    String? description,
-    List<Dependency>? dependencies,
-    List<Dependency>? devDependencies,
-    DateTime? published,
-    short? points,
-    short? likes,
-    float? popularity,
-    String? publisher,
-    bool? dart,
-    bool? flutter,
-    bool? flutterFavorite,
-    String? license,
-    bool? osiLicense,
-    List<SupportedPlatform>? platforms,
-  }) {
-    return Package(
-      name: name ?? this.name,
-      version: version ?? this.version,
-      isLatest: isLatest ?? this.isLatest,
-      homepage: homepage ?? this.homepage,
-      documentation: documentation ?? this.documentation,
-      description: description ?? this.description,
-      dependencies: dependencies ?? this.dependencies,
-      devDependencies: devDependencies ?? this.devDependencies,
-      published: published ?? this.published,
-      points: points ?? this.points,
-      likes: likes ?? this.likes,
-      popularity: popularity ?? this.popularity,
-      publisher: publisher ?? this.publisher,
-      dart: dart ?? this.dart,
-      flutter: flutter ?? this.flutter,
-      flutterFavorite: flutterFavorite ?? this.flutterFavorite,
-      license: license ?? this.license,
-      osiLicense: osiLicense ?? this.osiLicense,
-      platforms: platforms ?? this.platforms,
-    );
-  }
-}

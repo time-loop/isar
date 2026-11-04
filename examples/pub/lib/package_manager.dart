@@ -133,9 +133,7 @@ class PackageManager {
 
     final existing = await query.findAll();
     if (existing.isNotEmpty) {
-      yield {
-        for (final asset in existing) asset.kind: asset.content,
-      };
+      yield {for (final asset in existing) asset.kind: asset.content};
     } else {
       final existingAnyVersion = await isar.assets
           .where()
@@ -155,9 +153,7 @@ class PackageManager {
 
     await for (final results in query.watch()) {
       if (results.isNotEmpty) {
-        yield {
-          for (final asset in results) asset.kind: asset.content,
-        };
+        yield {for (final asset in results) asset.kind: asset.content};
       }
     }
   }

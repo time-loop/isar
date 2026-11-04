@@ -8,7 +8,7 @@ case "$(uname -m)" in
   *) echo "Unsupported macOS architecture: $(uname -m)" >&2; exit 1 ;;
 esac
 
-# Instalar a toolchain se não existir
+# Install the toolchain if it is not present
 rustup toolchain install $RUST_TOOLCHAIN
 
 export IPHONEOS_DEPLOYMENT_TARGET=12.0

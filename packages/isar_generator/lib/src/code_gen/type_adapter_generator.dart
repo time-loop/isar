@@ -9,7 +9,8 @@ String _prepareSerialize(
 ) {
   var code = '';
   if (nullable) {
-    code += '''
+    code +=
+        '''
       {
         final value = $value;
         if (value != null) {''';
@@ -31,13 +32,15 @@ String _prepareSerializeList(
 ]) {
   var code = '';
   if (nullable) {
-    code += '''
+    code +=
+        '''
       {
         final list = $value;
         if (list != null) {''';
     value = 'list';
   }
-  code += '''
+  code +=
+      '''
     bytesCount += 3 + $value.length * 3;
     {
       ${prepare ?? ''}
@@ -58,7 +61,8 @@ String _prepareSerializeList(
 }
 
 String generateEstimateSerialize(ObjectInfo object) {
-  var code = '''
+  var code =
+      '''
     int ${object.estimateSizeName}(
       ${object.dartName} object,
       List<int> offsets,
@@ -77,7 +81,6 @@ String generateEstimateSerialize(ObjectInfo object) {
           value,
           (value) => '3 + $value$enumValue.length * 3',
         );
-        break;
 
       case IsarType.stringList:
         final enumValue = property.isEnum ? '.${property.enumProperty}' : '';
@@ -87,18 +90,12 @@ String generateEstimateSerialize(ObjectInfo object) {
           value,
           'value$enumValue.length * 3',
         );
-        break;
 
       case IsarType.object:
-        code += _prepareSerialize(
-          property.nullable,
-          value,
-          (value) {
-            return '3 + ${property.targetSchema}.estimateSize($value, '
-                'allOffsets[${property.scalarDartType}]!, allOffsets)';
-          },
-        );
-        break;
+        code += _prepareSerialize(property.nullable, value, (value) {
+          return '3 + ${property.targetSchema}.estimateSize($value, '
+              'allOffsets[${property.scalarDartType}]!, allOffsets)';
+        });
 
       case IsarType.objectList:
         code += _prepareSerializeList(
@@ -108,7 +105,6 @@ String generateEstimateSerialize(ObjectInfo object) {
           '${property.targetSchema}.estimateSize(value, offsets, allOffsets)',
           'final offsets = allOffsets[${property.scalarDartType}]!;',
         );
-        break;
 
       case IsarType.byteList:
       case IsarType.boolList:
@@ -117,7 +113,6 @@ String generateEstimateSerialize(ObjectInfo object) {
           value,
           (value) => '3 + $value.length',
         );
-        break;
       case IsarType.intList:
       case IsarType.floatList:
         code += _prepareSerialize(
@@ -125,7 +120,6 @@ String generateEstimateSerialize(ObjectInfo object) {
           value,
           (value) => '3 + $value.length * 4',
         );
-        break;
       case IsarType.longList:
       case IsarType.doubleList:
       case IsarType.dateTimeList:
@@ -134,7 +128,6 @@ String generateEstimateSerialize(ObjectInfo object) {
           value,
           (value) => '3 + $value.length * 8',
         );
-        break;
 
       // ignore: no_default_cases - default case needed for exhaustive switch
       default:
@@ -149,7 +142,8 @@ String generateEstimateSerialize(ObjectInfo object) {
 }
 
 String generateSerialize(ObjectInfo object) {
-  var code = '''
+  var code =
+      '''
   void ${object.serializeName}(
     ${object.dartName} object, 
     IsarWriter writer,
@@ -171,70 +165,54 @@ String generateSerialize(ObjectInfo object) {
     switch (property.isarType) {
       case IsarType.bool:
         code += 'writer.writeBool(offsets[$i], $value);';
-        break;
       case IsarType.byte:
         code += 'writer.writeByte(offsets[$i], $value);';
-        break;
       case IsarType.int:
         code += 'writer.writeInt(offsets[$i], $value);';
-        break;
       case IsarType.float:
         code += 'writer.writeFloat(offsets[$i], $value);';
-        break;
       case IsarType.long:
         code += 'writer.writeLong(offsets[$i], $value);';
-        break;
       case IsarType.double:
         code += 'writer.writeDouble(offsets[$i], $value);';
-        break;
       case IsarType.dateTime:
         code += 'writer.writeDateTime(offsets[$i], $value);';
-        break;
       case IsarType.string:
         code += 'writer.writeString(offsets[$i], $value);';
-        break;
       case IsarType.object:
-        code += '''
+        code +=
+            '''
           writer.writeObject<${property.typeClassName}>(
             offsets[$i],
             allOffsets,
             ${property.targetSchema}.serialize,
             $value,
           );''';
-        break;
       case IsarType.byteList:
         code += 'writer.writeByteList(offsets[$i], $value);';
-        break;
       case IsarType.boolList:
         code += 'writer.writeBoolList(offsets[$i], $value);';
-        break;
       case IsarType.intList:
         code += 'writer.writeIntList(offsets[$i], $value);';
-        break;
       case IsarType.longList:
         code += 'writer.writeLongList(offsets[$i], $value);';
-        break;
       case IsarType.floatList:
         code += 'writer.writeFloatList(offsets[$i], $value);';
-        break;
       case IsarType.doubleList:
         code += 'writer.writeDoubleList(offsets[$i], $value);';
-        break;
       case IsarType.dateTimeList:
         code += 'writer.writeDateTimeList(offsets[$i], $value);';
-        break;
       case IsarType.stringList:
         code += 'writer.writeStringList(offsets[$i], $value);';
-        break;
       case IsarType.objectList:
-        code += '''
+        code +=
+            '''
           writer.writeObjectList<${property.typeClassName}>(
             offsets[$i],
             allOffsets,
             ${property.targetSchema}.serialize,
             $value,
           );''';
-        break;
     }
   }
 
@@ -242,7 +220,8 @@ String generateSerialize(ObjectInfo object) {
 }
 
 String generateDeserialize(ObjectInfo object) {
-  var code = '''
+  var code =
+      '''
     ${object.dartName} ${object.deserializeName}(
       Id id,
       IsarReader reader,
@@ -251,11 +230,13 @@ String generateDeserialize(ObjectInfo object) {
     ) {
       final object = ${object.dartName}(''';
 
-  final propertiesByMode =
-      object.properties.groupBy((ObjectProperty p) => p.deserialize);
+  final propertiesByMode = object.properties.groupBy(
+    (p) => p.deserialize,
+  );
   final positional = propertiesByMode[PropertyDeser.positionalParam] ?? [];
-  final sortedPositional =
-      positional.sortedBy((ObjectProperty p) => p.constructorPosition!);
+  final sortedPositional = positional.sortedBy(
+    (p) => p.constructorPosition!,
+  );
   for (final p in sortedPositional) {
     final index = object.objectProperties.indexOf(p);
     final deser = _deserializeProperty(object, p, 'offsets[$index]');
@@ -285,7 +266,8 @@ String generateDeserialize(ObjectInfo object) {
 }
 
 String generateDeserializeProp(ObjectInfo object) {
-  var code = '''
+  var code =
+      '''
     P ${object.deserializePropName}<P>(
       IsarReader reader,
       int propertyId,
@@ -336,8 +318,9 @@ String _deserializeProperty(
 
   if (property.isEnum) {
     if (property.isarType.isList) {
-      final elDefault =
-          !property.elementNullable ? '?? ${property.defaultEnumElement}' : '';
+      final elDefault = !property.elementNullable
+          ? '?? ${property.defaultEnumElement}'
+          : '';
       return '$deser?.map((e) => ${property.valueEnumMapName(object)}[e] '
           '$elDefault).toList() $defaultValue';
     } else {
@@ -351,8 +334,8 @@ String _deserializeProperty(
 String _deserialize(ObjectProperty property, String propertyOffset) {
   final orNull =
       property.nullable || property.userDefaultValue != null || property.isEnum
-          ? 'OrNull'
-          : '';
+      ? 'OrNull'
+      : '';
   final orElNull = property.elementNullable ? 'OrNull' : '';
 
   switch (property.isarType) {
@@ -432,8 +415,9 @@ String generateAttach(ObjectInfo object) {
   }
 
   for (final link in object.links) {
-    // ignore: leading_newlines_in_multiline_strings - template string requires leading newline for proper formatting
-    code += '''object.${link.dartName}.attach(
+    code +=
+        '''
+object.${link.dartName}.attach(
       col,
       col.isar.collection<${link.targetCollectionDartName}>(),
       r'${link.isarName}',

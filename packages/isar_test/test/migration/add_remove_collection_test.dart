@@ -51,8 +51,13 @@ void main() {
     await isar1.model1s.verify([obj1A, obj1B]);
     expect(await isar1.close(), true);
 
-    final isar2 =
-        await openTempIsar([Model1Schema, Model2Schema], name: isar1.name);
+    final isar2 = await openTempIsar(
+      [
+        Model1Schema,
+        Model2Schema,
+      ],
+      name: isar1.name,
+    );
     await isar2.model1s.verify([obj1A, obj1B]);
     await isar2.model2s.verify([]);
     final obj2 = Model2(null, 'col2_a');
@@ -90,7 +95,10 @@ void main() {
     expect(await isar2.close(), true);
 
     final isar3 = await openTempIsar(
-      [Model1Schema, Model2Schema],
+      [
+        Model1Schema,
+        Model2Schema,
+      ],
       name: isar1.name,
     );
     await isar3.model1s.verify([obj1A, obj1B]);

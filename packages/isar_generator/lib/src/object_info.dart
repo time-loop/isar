@@ -46,12 +46,7 @@ class ObjectInfo {
       '_${dartName.decapitalize()}DeserializeProp';
 }
 
-enum PropertyDeser {
-  none,
-  assign,
-  positionalParam,
-  namedParam,
-}
+enum PropertyDeser { none, assign, positionalParam, namedParam }
 
 class ObjectProperty {
   ObjectProperty({
@@ -176,7 +171,7 @@ class ObjectIndex {
   final bool unique;
   final bool replace;
 
-  late final id = xxh3(utf8.encode(name));
+  late final int id = xxh3(utf8.encode(name));
 }
 
 class ObjectLink {

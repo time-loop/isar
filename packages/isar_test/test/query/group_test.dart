@@ -68,10 +68,7 @@ void main() {
             .ageEqualTo(30)
             .and()
             .nameEqualTo('Emma'),
-        [
-          UserModel.fill('David', 20, false),
-          UserModel.fill('Emma', 30, true),
-        ],
+        [UserModel.fill('David', 20, false), UserModel.fill('Emma', 30, true)],
       );
     });
 
@@ -100,10 +97,7 @@ void main() {
             .ageEqualTo(20)
             .or()
             .group((q) => q.ageEqualTo(30).and().nameEqualTo('Emma')),
-        [
-          UserModel.fill('David', 20, false),
-          UserModel.fill('Emma', 30, true),
-        ],
+        [UserModel.fill('David', 20, false), UserModel.fill('Emma', 30, true)],
       );
     });
 

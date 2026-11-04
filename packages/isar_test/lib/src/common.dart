@@ -1,4 +1,4 @@
-// ignore_for_file: implementation_imports
+// ignore_for_file: implementation_imports, depend_on_referenced_packages
 
 import 'dart:async';
 import 'dart:io';
@@ -131,9 +131,7 @@ void _isarTest(
             rethrow;
           }
         },
-        zoneValues: {
-          #syncTest: syncTest,
-        },
+        zoneValues: {#syncTest: syncTest},
       );
     },
     timeout: timeout ?? const Timeout(Duration(minutes: 10)),
